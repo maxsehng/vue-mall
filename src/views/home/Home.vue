@@ -5,6 +5,7 @@
         </nav-bar>
         <!-- 只显示基本的逻辑，至于逻辑具体怎么展示，交给组件本身，这样使代码显得不那么臃肿 -->
         <home-swiper :banners='banners'></home-swiper>
+        <recommend-view :recommends='recommends'/>
     </div>
 </template>
 
@@ -12,12 +13,15 @@
 
 import NavBar from 'components/common/NavBar/NavBar.vue'
 import HomeSwiper from './childCompt/HomeSwiper'
+import RecommendView from './childCompt/RecommendView'
+
 import {getHomeMultiData} from 'network/home'
 export default {
     name:'Home',
     components:{
         NavBar,
-        HomeSwiper
+        HomeSwiper,
+        RecommendView
     },
     data(){
         return {
