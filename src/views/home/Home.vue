@@ -31,6 +31,8 @@ import FeatureView from './childCompt/FeatureView'
 import RecommendView from './childCompt/RecommendView'
 
 import {getHomeMultiData ,getHomeGoodsData} from 'network/home'
+
+import BScroll from 'better-scroll'
 export default {
     name:'Home',
     components:{
