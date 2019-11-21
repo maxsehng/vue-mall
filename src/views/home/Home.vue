@@ -5,6 +5,9 @@
         </nav-bar>
 
         <!-- 只显示基本的逻辑，至于逻辑具体怎么展示，交给组件本身，这样使代码显得不那么臃肿 -->
+
+        <scroll class="content" ref="scroll">
+            
         <home-swiper :banners='banners'></home-swiper>
 
         <recommend-view :recommends='recommends'/>
@@ -16,6 +19,14 @@
         ></tab-control>
 
         <goods-list :goods="showGoods"></goods-list>
+
+        </scroll>
+
+        <!-- 组件是不能直接添加事件的 必须添加native 原生修饰符
+        .native 监听组件根元素的原生事件
+         -->
+        <back-top @click.native="backClick"></back-top>
+
        
     </div>
 </template>
@@ -25,6 +36,8 @@
 import NavBar from 'components/common/NavBar/NavBar.vue'
 import TabControl from 'components/content/tabControl/TabControl.vue'
 import GoodsList from 'components/content/goods/GoodsList.vue'
+import Scroll from 'components/common/scroll/Scroll'
+import BackTop from 'components/content/backTop/BackTop'
 
 import HomeSwiper from './childCompt/HomeSwiper'
 import FeatureView from './childCompt/FeatureView'
@@ -41,7 +54,9 @@ export default {
         HomeSwiper,
         RecommendView,
         FeatureView,
-        GoodsList
+        GoodsList,
+        Scroll,
+        BackTop
     },
     data(){
         return {
@@ -104,8 +119,11 @@ export default {
                 case 2:
                     this.currentType ='sell'
             }
+        },
+        backClick(){
+            this.$refs.scroll.scrollTo(0,0)
+            //$refs.scroll 代表的是 scroll这个组件对象,拿到他后就可以调用组件对象里面的数据或者方法
         }
-
     }
 }
 </script>
@@ -113,6 +131,9 @@ export default {
 <style scoped>
     #home{
         padding-top: 44px;
+        height: 100vh;
+        position:relative;
+        /* viewpointerheight 视口高度 */
     }
     .home-nav{
         background-color: var(--color-tint);
@@ -130,6 +151,14 @@ export default {
 
         background-color: #fff;
         z-index: 9;
+    }
+    .content{
+        /* height: calc(100%-98px); */
+        height: 300px;
+        /* overflow: hidden; */
+        position: absolute;
+        top: 44px;
+        bottom: 49px;
     }
 </style>
 
