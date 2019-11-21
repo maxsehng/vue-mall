@@ -6,7 +6,7 @@
 
         <!-- 只显示基本的逻辑，至于逻辑具体怎么展示，交给组件本身，这样使代码显得不那么臃肿 -->
 
-        <scroll class="content" ref="scroll">
+        <scroll class="content" ref="scroll" :probe-type='3' @scroll="contentScroll">
             
         <home-swiper :banners='banners'></home-swiper>
 
@@ -25,7 +25,7 @@
         <!-- 组件是不能直接添加事件的 必须添加native 原生修饰符
         .native 监听组件根元素的原生事件
          -->
-        <back-top @click.native="backClick"></back-top>
+        <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
 
        
     </div>
@@ -67,7 +67,8 @@ export default {
                 'new':{page:0, list:[]},
                 'sell':{page:0, list:[]},
             },
-            currentType:'pop'
+            currentType:'pop',
+            isShowBackTop:true
         }
     },
     created(){
@@ -123,6 +124,9 @@ export default {
         backClick(){
             this.$refs.scroll.scrollTo(0,0)
             //$refs.scroll 代表的是 scroll这个组件对象,拿到他后就可以调用组件对象里面的数据或者方法
+        },
+        contentScroll(position){
+            this.isShowBackTop = ( -position.y) > 1000
         }
     }
 }
@@ -160,5 +164,11 @@ export default {
         top: 44px;
         bottom: 49px;
     }
+
+    /* .content{
+        height: calc(100% - 93px); 内容区域=100%高度-(navbar+tabbar)的高度
+        overflow: hidden;
+        margin-top: 44px;    也可以起到类似上面的效果 
+    } */
 </style>
 
