@@ -18,6 +18,7 @@ export default {
             default(){
                 return []
             }
+            //对象数组 默认值都必须写成一个函数
         }
     },
     data(){

@@ -27,6 +27,7 @@ export default {
     data(){
         return {
             scroll:null
+            //将scroll实例对象保存在scroll组件中 
         }
     },
     mounted() {
@@ -51,6 +52,9 @@ export default {
         },
         finishPullUp(){
             this.scroll.finishPullUp()
+        },
+        refresh(){
+            this.scroll.refresh()
         }
     }
 }

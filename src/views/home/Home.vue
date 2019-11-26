@@ -4,6 +4,12 @@
             <div slot="center">购物街</div>
         </nav-bar>
 
+        <tab-control :titles="['流行','新款','精选']" 
+        
+        @tabClick= 'tabClick'
+        ref = 'tabControl' class="tab-control" v-show="isTabFixed"
+        ></tab-control>
+        
         <!-- 只显示基本的逻辑，至于逻辑具体怎么展示，交给组件本身，这样使代码显得不那么臃肿 -->
 
         <scroll class= "content"
@@ -14,14 +20,16 @@
          @pullingUp = 'loadMore'
          >
             
-        <home-swiper :banners='banners'></home-swiper>
+        <home-swiper :banners='banners' @swiperLoad = 'swiperLoad'></home-swiper>
 
         <recommend-view :recommends='recommends'/>
 
         <feature-view/>
 
-        <tab-control :titles="['流行','新款','精选']" class="tab-control"
+        <tab-control :titles="['流行','新款','精选']" 
         @tabClick='tabClick'
+        ref = 'tabControl'
+        
         ></tab-control>
 
         <goods-list :goods="showGoods"></goods-list>    
@@ -74,7 +82,9 @@ export default {
                 'sell':{page:0, list:[]},
             },
             currentType:'pop',
-            isShowBackTop:true
+            isShowBackTop:true,
+            tabOffsetTop:597,
+            isTabFixed:false
         }
     },
     created(){
@@ -87,6 +97,16 @@ export default {
         //将函数体封装至methods里面 这里只负责调用
         this.getHomeGoodsData('new')
         this.getHomeGoodsData('sell')
+
+        
+    },
+    mounted() {
+        //3.监听item图片加载完成
+        this.$bus.$on('itemImageLoad',() => {
+            this.$refs.scroll.refresh()
+        }) 
+
+        //使用$el 可以获取组件元素      
     },
     computed: {
         showGoods(){
@@ -108,7 +128,7 @@ export default {
         getHomeGoodsData(type){
             const page = this.goods[type].page + 1
             getHomeGoodsData(type,page).then(res =>{
-            // console.log(res)
+            // ...res.data.list es6写法 解构数组 将里面的数据一个一个地塞进去
             this.goods[type].list.push(...res.data.list)
             this.goods[type].page += 1
             //为了继续下拉加载必须调用scroll组件的finishPullUp方法
@@ -116,6 +136,14 @@ export default {
         })
         },
         //事件监听相关方法
+        // debounce(func , delay){
+        //     let timer = null
+
+        //     return function(){
+        //         if (timer) clearTimeout(timer)
+        //     }
+        // },
+
         tabClick(index){
             //把一个个index 与 type联系一一对应起来
             switch(index){
@@ -131,7 +159,7 @@ export default {
         },
         loadMore(){
             this.getHomeGoodsData(this.currentType) 
-            //让scroll手动刷新 防止卡屏
+            //scroll.refresh()  重新获取高度
             this.$refs.scroll.scroll.refresh() 
         },
         backClick(){
@@ -140,6 +168,12 @@ export default {
         },
         contentScroll(position){
             this.isShowBackTop = ( -position.y) > 1000
+
+            this.isTabFixed = (-position.y) > this.tabOffsetTop
+        },
+        swiperLoad(){
+            console.log(this.$refs.tabControl.$el.offsetTop);
+            
         }
     }
 }
@@ -155,16 +189,19 @@ export default {
     .home-nav{
         background-color: var(--color-tint);
         color: aliceblue;
-        position: fixed;
+        margin-top: -44px;
+        position: relative;
+        z-index: 9;
+        /* position: fixed;
         left: 0;
         right: 0;
         top: 0;
-        z-index: 9;
+        z-index: 9; */
     }
     .tab-control{
         /* 当top值达到44px时，该属性会自动变为fixed 所以该属性一般会结合top或者bottom使用 */
-        position:sticky;
-        top: 44px;
+        /* position:sticky; */
+        /* top: 44px; */
 
         background-color: #fff;
         z-index: 9;
@@ -178,6 +215,16 @@ export default {
         bottom: 49px;
     }
 
+    .fixed {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top:44px;
+    }
+    .tab-control{
+        position: relative;
+        z-index: 9;
+    }
     /* .content{
         height: calc(100% - 93px); 内容区域=100%高度-(navbar+tabbar)的高度
         overflow: hidden;
