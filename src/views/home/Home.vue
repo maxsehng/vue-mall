@@ -5,9 +5,8 @@
         </nav-bar>
 
         <tab-control :titles="['流行','新款','精选']" 
-        
         @tabClick= 'tabClick'
-        ref = 'tabControl' class="tab-control" v-show="isTabFixed"
+        ref = 'tabControl1' class="tab-control" v-show="isTabFixed"
         ></tab-control>
         
         <!-- 只显示基本的逻辑，至于逻辑具体怎么展示，交给组件本身，这样使代码显得不那么臃肿 -->
@@ -28,9 +27,9 @@
 
         <tab-control :titles="['流行','新款','精选']" 
         @tabClick='tabClick'
-        ref = 'tabControl'
+        ref = 'tabControl2'
         
-        ></tab-control>
+        ></tab-control> 
 
         <goods-list :goods="showGoods"></goods-list>    
 
@@ -84,7 +83,8 @@ export default {
             currentType:'pop',
             isShowBackTop:true,
             tabOffsetTop:597,
-            isTabFixed:false
+            isTabFixed:false,
+            saveY: 0
         }
     },
     created(){
@@ -108,10 +108,17 @@ export default {
 
         //使用$el 可以获取组件元素      
     },
+    activated() {
+           this.$refs.scroll.scrollTo(0, this.saveY ,0) 
+           this.$refs.scroll.refresh()
+    },
+    deactivated() {
+            this.saveY = this.$refs.scroll.getScrollY() 
+    },
     computed: {
         showGoods(){
             return this.goods[this.currentType].list
-        }
+        },
     },
     methods:{
         //  网络请求相关的方法
@@ -156,6 +163,8 @@ export default {
                 case 2:
                     this.currentType ='sell'
             }
+            this.$refs.tabControl1.currentIndex = index;
+            this.$refs.tabControl2.currentIndex = index;
         },
         loadMore(){
             this.getHomeGoodsData(this.currentType) 
@@ -172,9 +181,10 @@ export default {
             this.isTabFixed = (-position.y) > this.tabOffsetTop
         },
         swiperLoad(){
-            console.log(this.$refs.tabControl.$el.offsetTop);
+            // console.log(this.$refs.tabControl2.$el.offsetTop);
             
-        }
+        },
+        
     }
 }
 </script>
