@@ -6,7 +6,13 @@
 
         <!-- 只显示基本的逻辑，至于逻辑具体怎么展示，交给组件本身，这样使代码显得不那么臃肿 -->
 
-        <scroll class="content" ref="scroll" :probe-type='3' @scroll="contentScroll">
+        <scroll class= "content"
+         ref="scroll" 
+         :probe-type = '3' 
+         :pull-up-load = 'true'
+         @scroll="contentScroll"
+         @pullingUp = 'loadMore'
+         >
             
         <home-swiper :banners='banners'></home-swiper>
 
@@ -18,7 +24,7 @@
         @tabClick='tabClick'
         ></tab-control>
 
-        <goods-list :goods="showGoods"></goods-list>
+        <goods-list :goods="showGoods"></goods-list>    
 
         </scroll>
 
@@ -105,6 +111,8 @@ export default {
             // console.log(res)
             this.goods[type].list.push(...res.data.list)
             this.goods[type].page += 1
+            //为了继续下拉加载必须调用scroll组件的finishPullUp方法
+            this.$refs.scroll.finishPullUp()
         })
         },
         //事件监听相关方法
@@ -120,6 +128,11 @@ export default {
                 case 2:
                     this.currentType ='sell'
             }
+        },
+        loadMore(){
+            this.getHomeGoodsData(this.currentType) 
+            //让scroll手动刷新 防止卡屏
+            this.$refs.scroll.scroll.refresh() 
         },
         backClick(){
             this.$refs.scroll.scrollTo(0,0)
