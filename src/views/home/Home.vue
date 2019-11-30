@@ -115,7 +115,7 @@ export default {
     deactivated() {
             this.saveY = this.$refs.scroll.getScrollY() 
             //取消全局事件的监听
-            this.$bus.$of('itemImageLoad',)
+            
 
     },
     computed: {

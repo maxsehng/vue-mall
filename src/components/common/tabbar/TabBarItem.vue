@@ -41,6 +41,7 @@ export default {
     methods:{
         itemClick(){
              this.$router.push(this.path)
+             //对组件进行监听点击，然后通过父组件传参的方式将path传给子组件
         }
     }
 }

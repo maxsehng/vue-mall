@@ -1,20 +1,24 @@
 <template>
     <div id="detail">
         <!-- 导航栏 -->
-        <detail-nav-bar class="detail-nav"></detail-nav-bar>
-        <scroll class="content" ref='scroll'>
+        <detail-nav-bar class="detail-nav" @titleClick='titleClick' ref="nav"></detail-nav-bar>
+        <scroll class="content" ref='scroll' @scroll="contentScroll" :probeType='3'>
         <detail-swiper :top-images= 'topImages'></detail-swiper>
         <detail-base-info :goods='goods'></detail-base-info>
         <detail-shop-info :shop='shop'></detail-shop-info>
         <detail-images-info :imagesInfo='imagesInfo' @imgLoad='imgLoad'></detail-images-info>
-        <detail-param-info :paramInfo = 'paramInfo'></detail-param-info>
-        <detail-comment-info :commentInfo = 'commentInfo'></detail-comment-info>
-        <goods-list :goods = 'recommends'></goods-list>
+        <detail-param-info :paramInfo = 'paramInfo' ref="params"></detail-param-info>
+        <detail-comment-info :commentInfo = 'commentInfo' ref="comment"></detail-comment-info>
+        <goods-list :goods = 'recommends' ref="recommend"></goods-list>
         </scroll>
+        <detail-bottom-bar @addToCart='addToCart'></detail-bottom-bar>
+        <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
     </div> 
 </template>
 
 <script>
+import BackTop from 'components/content/backTop/BackTop'
+import DetailBottomBar from './childComps/DetailBottomBar'
 import GoodsList from 'components/content/goods/GoodsList'
 import DetailCommentInfo from './childComps/DetailCommentInfo'
 import DetailParamInfo from './childComps/DetailParamInfo'
@@ -25,6 +29,7 @@ import DetailNavBar  from './childComps/DetailNavBar'
 import DetailSwiper from './childComps/DetailSwiper'
 import Scroll from 'components/common/scroll/Scroll'
 import {getDetail ,Goods ,Shop ,GoodsParams ,getRecommend} from 'network/detail'
+import {backTopMixin} from 'common/mixin'
 export default {
     name:'Detail',
     components:{
@@ -36,8 +41,11 @@ export default {
         DetailImagesInfo,
         DetailParamInfo,
         DetailCommentInfo,
-        GoodsList
+        GoodsList,
+        DetailBottomBar,
+        BackTop
     },
+    mixins:[backTopMixin],
     data(){
         return {
             iid: null,
@@ -47,12 +55,49 @@ export default {
             imagesInfo:{},
             paramInfo:{},
             commentInfo:{},
-            recommends:[]
+            recommends:[],
+            themeTopYs:[],
+            currentIndex:0
         }
     },
     methods:{
         imgLoad(){
             this.$refs.scroll.refresh()
+            this.themeTopYs = []
+            this.themeTopYs.push(0)
+            this.themeTopYs.push(this.$refs.params.$el.offsetTop)
+            this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
+            this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
+            this.themeTopYs.push(Number.MAX_VALUE)
+        },
+        titleClick(index){
+            // console.log(index);
+            this.$refs.scroll.scrollTo(0,-this.themeTopYs[index],200)
+        },
+        contentScroll(position){
+            const positionY = -position.y
+            let length = this.themeTopYs.length
+            for (let i = 0;i < length - 1; i ++) {
+                if (this.currentIndex !== i &&(positionY >=this.themeTopYs[i] && positionY <this.themeTopYs[i+1])){
+                    this.currentIndex = i ;
+                    this.$refs.nav.currentIndex = this.currentIndex
+                }
+            }
+            this.listenShowBackTop(position)
+        },
+        addToCart(){
+            //1.获取购物车需要展示的数据
+            const product = {
+
+            }
+            product.image =this.topImages[0]
+            product.title = this.goods.title
+            product.desc = this.goods.desc
+            product.price = this.goods.realPrice
+            product.iid = this.iid
+
+            this.$store.commit('addCart',product)
+            //commit提交product 到store对象中的 mutations的监听方法addCart 并且把product作为实参传入
         }
     },
     created() {
@@ -76,6 +121,14 @@ export default {
             if (data.rate !== 0){
                 this.commentInfo = data.rate.list[0]
             }
+            //值不对的原因是this.$refs.params.$el压根没有渲染
+            // this.themeTopYs = []
+            //     this.themeTopYs.push(0)
+            //     this.themeTopYs.push(this.$refs.params.$el.offsetTop)
+            //     this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
+            //     this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
+
+          
         })
 
         getRecommend().then(res => {
