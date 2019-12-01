@@ -35,7 +35,7 @@ export default {
             this.$emit('titleClick',index)
         },
         backClick(){
-            this.$router.back()
+            this.$router.go(-1)
             //调用$router的back()方法 返回上一次历史记录
         }
     }

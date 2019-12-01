@@ -13,6 +13,7 @@
         </scroll>
         <detail-bottom-bar @addToCart='addToCart'></detail-bottom-bar>
         <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
+        <!-- <toast :message='message' :show='show'></toast> -->
     </div> 
 </template>
 
@@ -30,6 +31,9 @@ import DetailSwiper from './childComps/DetailSwiper'
 import Scroll from 'components/common/scroll/Scroll'
 import {getDetail ,Goods ,Shop ,GoodsParams ,getRecommend} from 'network/detail'
 import {backTopMixin} from 'common/mixin'
+
+import {mapActions} from 'vuex'
+// import Toast from 'components/common/toast/Toast'
 export default {
     name:'Detail',
     components:{
@@ -43,7 +47,8 @@ export default {
         DetailCommentInfo,
         GoodsList,
         DetailBottomBar,
-        BackTop
+        BackTop,
+        // Toast
     },
     mixins:[backTopMixin],
     data(){
@@ -57,10 +62,13 @@ export default {
             commentInfo:{},
             recommends:[],
             themeTopYs:[],
-            currentIndex:0
+            currentIndex:0,
+            // message:'',
+            // show:false
         }
     },
     methods:{
+        ...mapActions(['addCart']),
         imgLoad(){
             this.$refs.scroll.refresh()
             this.themeTopYs = []
@@ -96,8 +104,21 @@ export default {
             product.price = this.goods.realPrice
             product.iid = this.iid
 
-            this.$store.commit('addCart',product)
-            //commit提交product 到store对象中的 mutations的监听方法addCart 并且把product作为实参传入
+            this.addCart(product).then(res =>{
+                // this.show=true
+                // this.message = res;
+                // setTimeout(() => {
+                //     this.show = false
+                //     this.message= ''
+                // }, 1500);
+                // console.log(res);
+                this.$toast.show(res, 2000)
+            })
+            // this.$store.dispatch('addCart',product).then(res => {
+            //     console.log(res);
+                
+            // })
+            
         }
     },
     created() {
